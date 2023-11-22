@@ -16,6 +16,7 @@ public:
     ~ModifyDialog();
 
     int tempID;
+    QString Img;
 
 private slots:
     void on_pushButton_clicked();
