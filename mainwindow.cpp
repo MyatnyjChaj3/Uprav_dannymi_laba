@@ -38,8 +38,7 @@ void MainWindow::on_pushButton_clicked()
     fl = 1;
 
     qmodel = new QSqlTableModel();
-    qmodel -> setQuery("SELECT *"
-                       "FROM product a inner join category b on a.catID = b.ID");
+    qmodel -> setQuery("SELECT * FROM product");
     ui -> tableView -> setModel(qmodel);
 }
 
@@ -65,8 +64,7 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index)
     {
     query->next();
     ui->lineEdit_2->setText(query->value(0).toString());
-    //ui->lineEdit_3->setText(query->value(1).toString());
-    ui->comboBox->setCurrentIndex(query->value(1).toInt()-1);
+    ui->lineEdit_3->setText(query->value(1).toString());
     Img = query -> value(2).toString();
     ui -> label_4 -> setPixmap(Img);
     }
@@ -82,8 +80,7 @@ void MainWindow::on_pushButton_4_clicked()
 
     ui -> lineEdit -> setText("");
     ui -> lineEdit_2 -> setText("");
-    //ui -> lineEdit_3 -> setText("");
-    ui->comboBox->setCurrentIndex(query->value(1).toInt()-1);
+    ui -> lineEdit_3 -> setText("");
 
     MainWindow::on_pushButton_clicked();
 }
@@ -96,14 +93,12 @@ query->prepare("UPDATE product SET name = :name, "
 "cat_ID = :category, ImagePath = :image WHERE ID = :ID");
 query->bindValue(":ID",ui->lineEdit->text());
 query->bindValue(":name",ui->lineEdit_2->text());
-//query->bindValue(":category",ui->lineEdit_3->text());
-query->bindValue(":category",ui->comboBox->currentIndex()+1);
+query->bindValue(":category",ui->lineEdit_3->text());
 query->bindValue(":image",Img);
 query->exec();
 ui->lineEdit->setText("");
 ui->lineEdit_2->setText("");
-//ui->lineEdit_3->setText("");
-ui->comboBox->setCurrentIndex(query->value(1).toInt()-1);
+ui->lineEdit_3->setText("");
 ui->label_4->setText("");
 MainWindow::on_pushButton_clicked();
 }
