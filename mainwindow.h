@@ -62,6 +62,8 @@ private slots:
 
     void on_action_2_triggered();
 
+    void on_pushButton_7_clicked();
+
 signals:
     void sendID(int);
 

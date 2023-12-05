@@ -33,7 +33,7 @@ void PrintDialog::on_pushButton_clicked()
     in << "<td>"+QString("Категория")+"</td></tr>";
     QSqlQuery *query = new QSqlQuery();
     query->exec("SELECT * FROM product");
-    query->next();
+   // query->next();
     while (query->next())
     {
     in << "<tr>";

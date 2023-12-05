@@ -8,7 +8,6 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-
     ui->label_4->setStyleSheet("QLabel {"
                                  "border-style: solid;"
                                  "border-width: 1px;"
@@ -17,6 +16,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui -> tableView, SIGNAL(customContextNemuRequested(QPoint)), SLOT(CustomMenuReq(QPoint)));
     fl = 0;
+
+    ui -> dateEdit -> setDate(QDate::currentDate());
 }
 
 
@@ -36,10 +37,20 @@ void MainWindow::on_action_triggered()
 void MainWindow::on_pushButton_clicked()
 {
     fl = 1;
+    ui->comboBox->clear();
 
     qmodel = new QSqlTableModel();
-    qmodel -> setQuery("SELECT * FROM product");
+    qmodel -> setQuery("SELECT *"
+                       "FROM product a inner join category b on a.catID = b.ID");
     ui -> tableView -> setModel(qmodel);
+
+    QSqlQuery *query = new QSqlQuery();
+    query->exec("SELECT DISTINCT name FROM category");
+        while (query->next())
+        {
+            ui->comboBox->addItem(query->value(0).toString());
+        }
+
 }
 
 
@@ -50,26 +61,30 @@ void MainWindow::on_pushButton_2_clicked()
 }
 
 
-
-
 void MainWindow::on_tableView_clicked(const QModelIndex &index)
 {
+    QSqlQueryModel *model = new QSqlQueryModel();
+    model->setQuery("SELECT name FROM category");
+    ui->comboBox->setModel(model);
+
     int temp_ID;
     temp_ID = ui->tableView->model()->data(ui->tableView-> model()->index(index.row(),0)).toInt(); //в одну строку
     QSqlQuery *query = new QSqlQuery();
-    query->prepare("SELECT name, category, ImagePath FROM product WHERE ID = :ID");
+    query->prepare("SELECT name, catID, ImagePath, prodDate FROM product WHERE ID = :ID");
     query->bindValue(":ID",temp_ID);
     ui->lineEdit->setText(QString::number(temp_ID));
+    query->bindValue(":date", ui->dateEdit->text());
+
     if (query->exec())
     {
     query->next();
     ui->lineEdit_2->setText(query->value(0).toString());
-    ui->lineEdit_3->setText(query->value(1).toString());
+    ui->comboBox->setCurrentIndex(query->value(1).toInt()-1);
     Img = query -> value(2).toString();
     ui -> label_4 -> setPixmap(Img);
+    ui -> dateEdit ->setDate(query ->value(3).toDate());
     }
 }
-
 
 void MainWindow::on_pushButton_4_clicked()
 {
@@ -80,7 +95,7 @@ void MainWindow::on_pushButton_4_clicked()
 
     ui -> lineEdit -> setText("");
     ui -> lineEdit_2 -> setText("");
-    ui -> lineEdit_3 -> setText("");
+    ui->comboBox->setCurrentIndex(query->value(1).toInt()-1);
 
     MainWindow::on_pushButton_clicked();
 }
@@ -88,19 +103,20 @@ void MainWindow::on_pushButton_4_clicked()
 
 void MainWindow::on_pushButton_3_clicked()
 {
-QSqlQuery *query = new QSqlQuery();
-query->prepare("UPDATE product SET name = :name, "
-"cat_ID = :category, ImagePath = :image WHERE ID = :ID");
-query->bindValue(":ID",ui->lineEdit->text());
-query->bindValue(":name",ui->lineEdit_2->text());
-query->bindValue(":category",ui->lineEdit_3->text());
-query->bindValue(":image",Img);
-query->exec();
-ui->lineEdit->setText("");
-ui->lineEdit_2->setText("");
-ui->lineEdit_3->setText("");
-ui->label_4->setText("");
-MainWindow::on_pushButton_clicked();
+    QSqlQuery *query = new QSqlQuery();
+    query->prepare("UPDATE product SET name = :name, "
+    "catID = :category, ImagePath = :image, prodDate = :date WHERE ID = :ID");
+    query->bindValue(":ID",ui->lineEdit->text());
+    query->bindValue(":name",ui->lineEdit_2->text());
+    query->bindValue(":category",ui->comboBox->currentIndex()+1);
+    query->bindValue(":image",Img);
+    query->bindValue(":date", ui->dateEdit->text());
+    query->exec();
+    ui->lineEdit->setText("");
+    ui->lineEdit_2->setText("");
+    ui->comboBox->setCurrentIndex(query->value(1).toInt()-1);
+    ui->label_4->setText("");
+    MainWindow::on_pushButton_clicked();
 }
 void MainWindow::CustomMenuReq(QPoint pos)
 {
@@ -110,7 +126,7 @@ void MainWindow::CustomMenuReq(QPoint pos)
         GlobID = ui->tableView->model()->data(ui->tableView->model()->index(index.row(),0)).toInt();
         //Создаём меню и два действия
         QMenu *menu = new QMenu(this);
-        QAction *ModRec = new QAction("Изменить...", this);
+        QAction *ModRec = new QAction("Изменить", this);
         QAction *DelRec = new QAction("Удалить", this);
         //Соединяем действие с соответствующим сигналом и слотом
         //(который нужно создать позже)
@@ -160,7 +176,7 @@ void MainWindow::on_pushButton_6_clicked()
     str.append("<td>"+QString("Категория")+"</td></tr>");
     QSqlQuery *query = new QSqlQuery();
     query->exec("SELECT * FROM product");
-    query->next();
+   // query->next();
     while(query->next())
     {
     str.append("<tr>");
@@ -204,5 +220,12 @@ void MainWindow::on_action_2_triggered()
 {
     pg = new printGraf();
     pg -> show();
+}
+
+
+void MainWindow::on_pushButton_7_clicked()
+{
+    mdlg = new ModifyDialog();
+    mdlg -> show();
 }
 
