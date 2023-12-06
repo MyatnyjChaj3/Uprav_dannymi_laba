@@ -30,16 +30,20 @@ void PrintDialog::on_pushButton_clicked()
     in << "<table border=1><tr>";
     in << "<td>"+QString("ID")+"</td>";
     in << "<td>"+QString("Наименование")+"</td>";
-    in << "<td>"+QString("Категория")+"</td></tr>";
+    in << "<td>"+QString("Категория")+"</td>";
+    in << "<td>"+QString("Путь к изображению")+"</td>";
+    in << "<td>"+QString("Дата завоза")+"</td></tr>";
     QSqlQuery *query = new QSqlQuery();
-    query->exec("SELECT * FROM product");
+    query->exec("SELECT *FROM product a inner join category b on a.catID = b.ID");
    // query->next();
     while (query->next())
     {
     in << "<tr>";
     in << "<td>"+QString(query->value(0).toString())+"</td>";
     in << "<td>"+QString(query->value(1).toString())+"</td>";
-    in << "<td>"+QString(query->value(2).toString())+"</td>";
+    in << "<td>"+QString(query->value(5).toString())+"</td>";
+    in << "<td>"+QString(query->value(3).toString())+"</td>";
+    in << "<td>"+QString(query->value(4).toString())+"</td>";
     in << "</tr>";
     }
     in << "</table>";

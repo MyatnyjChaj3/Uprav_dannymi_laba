@@ -17,6 +17,12 @@ AddDialog::AddDialog(QWidget *parent) :
     }
 
     ui -> dateEdit -> setDate(QDate::currentDate());
+
+    ui->label_3->setStyleSheet("QLabel {"
+                                 "border-style: solid;"
+                                 "border-width: 1px;"
+                                 "border-color: black; "
+                                 "}");
 }
 
 AddDialog::~AddDialog()

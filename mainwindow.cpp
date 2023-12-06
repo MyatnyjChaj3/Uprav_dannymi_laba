@@ -173,9 +173,11 @@ void MainWindow::on_pushButton_6_clicked()
     str.append("<table border=1><tr>");
     str.append("<td>"+QString("ID")+"</td>");
     str.append("<td>"+QString("Наименование")+"</td>");
-    str.append("<td>"+QString("Категория")+"</td></tr>");
+    str.append("<td>"+QString("Категория")+"</td>");
+    str.append("<td>"+QString("Путь к изображению")+"</td>");
+    str.append("<td>"+QString("Дата завоза")+"</td></tr>");
     QSqlQuery *query = new QSqlQuery();
-    query->exec("SELECT * FROM product");
+    query->exec("SELECT * FROM product a inner join category b on a.catID = b.ID");
    // query->next();
     while(query->next())
     {
@@ -185,8 +187,12 @@ void MainWindow::on_pushButton_6_clicked()
     str.append("<td>"
     +QString(query->value(1).toString())+"</td>");
     str.append("<td>"
-    +QString(query->value(2).toString())
-    +"</td></tr>");
+    +QString(query->value(5).toString())+"</td>");
+    str.append("<td>"
+    +QString(query->value(3).toString())+"</td>");
+    str.append("<td>"
+    +QString(query->value(4).toString())+"</td>"
+    "</tr>");
     }
     str.append("</table>");
     str.append("</center></body></html>");
